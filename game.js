@@ -1,159 +1,270 @@
 'use strict'
 
 //Estas son las variables que uso en el programa
-let tiles = []
+let tilesN1 = []
 
-const filas = 3
-const columnas = 4
+const filasN1 = 2
+const columnasN1 = 3
 
-let cartaAbajo
-let cartasArriba
+let selectedimg, matchedimg
 
-let imagesDeck = []
-let cartasVolteadas = []
-let delayStartFC = null
+//arreglos de cartas
+let cartasN1 = [], cartasN2 = [], cartasN3 = []
+
+//let imagesDeck = []
+let cartasSeleccionadas = []
+//let delayStartFC = null
 
 //numero de intentos que hago
 let numeroIntentos = 0
+//fondos
+let iniciobg, inst1, inst2, inst3, nivel1bg, nivel2bg, nivel3bg
+//botones
+let jugarOff, jugarOn, iniciarOff, iniciarOn, siguienteOff, siguienteOn
+//gif
+let instGif
+//cartas variables
+let carta1N1, carta2N1, carta3N1, carta4N1, carta5N1, carta6N1
+let carta1N2, carta2N2, carta3N2, carta4N2, carta5N2, carta6N2
 
-//Objeto carta que recibe una posicion x,y y una imagen de como se vera la carta arriba------------
-class Tile {
-  constructor(x, y, cartaArriba) {
-    this.x = x
-    this.y = y
-    this.width = 250
-    this.cartaAbajo = cartaAbajo
-    this.cartaArriba = cartaArriba
-    this.isFaceUp = false
-  }
+//cartas imagenes
+let carta1N1img, carta2N1img, carta3N1img, carta4N1img, carta5N1img, carta6N1img
 
-  //el metodo render lo usamos principalmente como un draw que luego llamaremos en un draw general
-  render() {
-    fill(0, 0, 0)
-    stroke(255, 255, 255)
-    strokeWeight(4)
-    rect(this.x, this.y, this.width, this.width)
+let pantalla = 0
+let nivel1, nivel2, nivel3
 
+//contador
+let contadorOn = false
+let segundos = 59
+let minutos = 4
+let pairsMatched = 0
 
-    //esto me dice que si clickee mi carta, entonces que cambie la imagen 
-    if (this.isFaceUp === true) {
-      image(this.cartaArriba, this.x, this.y, this.width, this.width)
-    } else {
-      image(this.cartaAbajo, this.x + 40, this.y + 40, 20, 20)
-    }
-  }
+//fuentes
+let regularfont
 
-  //esto pregunta si mi carta esta arriba, para poder anadirla a un array de cartas arriba, ese array luego lo usamos para poder comparar las 2 cartas que estan arriba
-  setIsFaceUp(isFaceUp) {
-    this.isFaceUp = isFaceUp
-  }
+function setup() {
+  createCanvas(1080, 720)
 
-  //esto pregunta si mi mouse esta por encima de tal carta para asi voltear esa y no otra 
-  isUnderMouse(x, y) {
-    return x >= this.x && x <= this.x + this.width  &&
-      y >= this.y && y <= this.y + this.width
-  }
+  selectedimg = loadImage("../assets/selected.png")
+  matchedimg = loadImage("../assets/matched.png")
+
+  //fondos
+  iniciobg = loadImage("../assets/inicioBg.jpg")
+  inst1 = loadImage("../assets/inst1.jpg")
+  inst2 = loadImage("../assets/inst2.jpg")
+  inst3 = loadImage("../assets/inst3.jpg")
+
+  //botones
+  iniciarOff = loadImage("../assets/iniciarOff.png")
+  iniciarOn = loadImage("../assets/iniciarOn.png")
+  jugarOff = loadImage("../assets/jugarOff.png")
+  jugarOn = loadImage("../assets/jugarOn.png")
+  siguienteOff = loadImage("../assets/siguienteOff.png")
+  siguienteOn = loadImage("../assets/siguienteOn.png")
+
+  //niveles
+  nivel1bg = loadImage("../assets/nivel1.jpg")
+  nivel2bg = loadImage("../assets/nivel2.jpg")
+  nivel3bg = loadImage("../assets/nivel3.jpg")
+
+  // gif
+  instGif = loadGif("../assets/3D-Match.gif")
+
+  regularfont = loadFont('../assets/fonts/NeueMachina-Regular.otf')
+
+  createTilesN1()
+  preload()
 }
 
-//Esto crea cada una de las cartas
-function createTiles() {
-  for (let i = 0; i < columnas; i++) {
-    for (let j = 0; j < filas; j++) {
-      tiles.push(new Tile(i * 280 + 40, j * 280 + 40, imagesDeck.pop()))
-    }
-  }
-}
-
-
-//esto es para actualizar la posicion de las cartas si encuentro un match y sino para que las voltee again
-
-function updateGameLogic() {
-  if (delayStartFC && (frameCount - delayStartFC) > 30) {
-    for (let i = 0 ;i < tiles.length; i++) {
-      if (!tiles[i].isMatch && tiles[i].isFaceUp) {
-        tiles[i].setIsFaceUp(false)
-      }
-    }
-    cartasVolteadas = []
-    delayStartFC = null
-  }
-}
-
-//Aqui ponemos las cartas
-function loadcartasArriba() {
-  cartasArriba = [
-    loadImage("assets/azul.png"),
-    loadImage("assets/cafe.png"),
-    loadImage("assets/colorPiel.png"),
-    loadImage("assets/oro.png"),
-    loadImage("assets/rojoRoa.png"),
-    loadImage("assets/verdeOscuro.png"),
+function preload() {
+  //cartas
+  cartasN1 = [
+    carta1N1img = loadImage("assets/Nivel1/1-1.png"),
+    carta2N1img = loadImage("assets/Nivel1/2-1.png"),
+    carta3N1img = loadImage("assets/Nivel1/3-2.png"),
+    carta4N1img = loadImage("assets/Nivel1/4-2.png"),
+    carta5N1img = loadImage("assets/Nivel1/5.png"),
+    carta6N1img = loadImage("assets/Nivel1/6.png")
   ]
 }
 
-//esto es para crear todas las plataformas para mis cartas, en donde van a estar
-function createImagesDeck(images) {
-  for (let i = 0; i < cartasArriba.length; i++) {
-    imagesDeck.push(images[i])
-    imagesDeck.push(images[i])
+function resizeCards(cardDeck, newWidth) {
+  for (let i = 0; i < cardDeck.length; i++) {
+    cardDeck[i].resize(newWidth, 0)
   }
-
-  imagesDeck.sort(function() {
-    return 0.5 - random()
-  })
-}
-
-//esto es el metodo que se activa cuando gano
-function drawScoringMessage() {
-  let foundAllMatches = true
-
-  for (let i = 0 ;i < tiles.length; i++) {
-    foundAllMatches = foundAllMatches && tiles[i].isMatch
-  }
-
-  if (foundAllMatches) {
-    fill(0, 0, 0)
-    text("Ganaste ", 20, 360)
-  }
-}
-
-function setup() {
-  createCanvas(1352, 1352)
-
-  //aqui cargas como se veria tu carta boca abajo
-  cartaAbajo = loadImage("../assets/cartaAbajo.png")
-  loadcartasArriba();
-
-  createImagesDeck(cartasArriba);
-  createTiles();
 }
 
 //en el draw siempre estamos actualizando la logica del juego por si alguna vez cambian las cosas
 function draw() {
-  updateGameLogic()
 
-  //pinto todas mis cartas
-  for (let i = 0; i < tiles.length; i++) {
-    tiles[i].render();
+  resizeCards(cartasN1, 100)
+  screenFlow()
+
+}
+
+function screenFlow() {
+
+  switch (pantalla) {
+    case 0:
+      image(iniciobg, -25, 0, 1135, 720)
+      button(540, 630, "iniciar")
+      break;
+
+    case 1:
+      image(inst1, -25, 0, 1135, 720)
+      button(530, 500, "siguiente")
+      break;
+
+    case 2:
+      image(inst2, -25, 0, 1135, 720)
+      imageMode(CENTER)
+      image(instGif, 540, 400, 430 * 1.25, 232 * 1.25)
+      imageMode(CORNER)
+      button(540, 610, "siguiente")
+      break;
+
+    case 3:
+      image(inst3, -25, 0, 1135, 720)
+      button(840, 610, "jugar")
+      break;
+
+    case 4:
+      image(nivel1bg, -25, 0, 1135, 720)
+      renderTiles(tilesN1, 0.3)
+      counter()
+      break;
+
+    case 5:
+      image(nivel2bg, -25, 0, 1135, 720)
+      break;
+
+    case 6:
+      image(nivel3bg, -25, 0, 1135, 720)
+      break;
+
   }
-//pregunto si gane
-  drawScoringMessage();
+}
+
+
+function buttonSystem() {
+
+  buttonClicked(540, 630, 0)
+  buttonClicked(530, 500, 1)
+  buttonClicked(540, 610, 2)
+  buttonClicked(840, 610, 3)
+
+}
+
+function button(x, y, type) {
+
+  let btnNameOn, btnNameOff
+
+  if (type === "iniciar") {
+    btnNameOn = iniciarOn
+    btnNameOff = iniciarOff
+  }
+
+  if (type === "jugar") {
+    btnNameOn = jugarOn
+    btnNameOff = jugarOff
+  }
+
+  if (type === "siguiente") {
+    btnNameOn = siguienteOn
+    btnNameOff = siguienteOff
+  }
+
+  imageMode(CENTER)
+  if (mouseX < x + (183 / 2) && mouseX > x - (183 / 2) && mouseY < y + (60 / 2) && mouseY > y - (60 / 2)) {
+    image(btnNameOn, x, y, 183, 60)
+  } else {
+    image(btnNameOff, x, y, 183, 60)
+  }
+  imageMode(CORNER)
+
+
+}
+
+function buttonClicked(x, y, screen) {
+  if (mouseX < x + (183 / 2) && mouseX > x - (183 / 2) && mouseY < y + (60 / 2) && mouseY > y - (60 / 2)) {
+    if (pantalla === screen) {
+      pantalla += 1
+    }
+  }
+}
+
+//Esto crea cada una de las cartas
+function createTilesN1() {
+
+  let x = 230
+  let y = 260
+  let paddingX = 100
+
+  carta1N1 = new Tile(1 * x + paddingX, 1 * y, carta1N1img, 1)
+  carta2N1 = new Tile(2 * x + paddingX, 1 * y, carta2N1img, 1)
+  carta3N1 = new Tile(3 * x + paddingX, 1 * y, carta3N1img, 2)
+  carta4N1 = new Tile(1 * x + paddingX, 2 * y, carta4N1img, 2)
+  carta5N1 = new Tile(2 * x + paddingX, 2 * y, carta5N1img, null)
+  carta6N1 = new Tile(3 * x + paddingX, 2 * y, carta6N1img, null)
+
+  tilesN1.push(carta1N1, carta2N1, carta3N1, carta4N1, carta5N1, carta6N1)
+
+}
+
+
+function renderTiles(cardDeck, ratio) {
+
+  for (let i = 0; i < cardDeck.length; i++) {
+    cardDeck[i].render(ratio)
+  }
+}
+
+function counter() {
+
+  if (frameCount % 60 === 0) {
+    segundos -= 1
+  }
+
+  if (segundos < 0) {
+    minutos -= 1
+    segundos = 59
+  }
+
+  textSize(20)
+  fill(255)
+  textFont(regularfont)
+  text("Tiempo " + minutos + ":" + segundos, 915, 50)
 }
 
 //mouseclicked para cada vez que clickeo sobre una carta
 function mouseClicked() {
-  for (let i = 0; i < tiles.length; i++) {
-    if (tiles[i].isUnderMouse(mouseX, mouseY)) {
-      if (cartasVolteadas.length < 2 && !tiles[i].isFaceUp) {
-        tiles[i].setIsFaceUp(true)
-        cartasVolteadas.push(tiles[i])
-        if (cartasVolteadas.length === 2) {
+
+  // console.log(tiles)
+  console.log(cartasSeleccionadas)
+
+  buttonSystem()
+
+  if (pantalla === 4) {
+    checkSelected(tilesN1)
+  }
+}
+
+function checkSelected(cardDeck) {
+
+  for (let i = 0; i < cardDeck.length; i++) {
+    if (dist(mouseX, mouseY, cardDeck[i].getPosX(), cardDeck[i].getPosY()) < 80) {
+      if (cartasSeleccionadas.length < 2 && !cardDeck[i].isSelected) {
+        cartasSeleccionadas.push(cardDeck[i])
+        cardDeck[i].setIsSelected(true)
+        if(cartasSeleccionadas === 2){
           numeroIntentos++
-          if (cartasVolteadas[0].cartaArriba === cartasVolteadas[1].cartaArriba) {
-            cartasVolteadas[0].isMatch = true
-            cartasVolteadas[1].isMatch = true
+          if (selectedCardDeck[0].getPair() === selectedCardDeck[1].getPair() && selectedCardDeck[1].getPair()) {
+            //pairsMatched++
+            selectedCardDeck[0].setIsMatched(true)
+            selectedCardDeck[1].setIsMatched(true)
+            console.log(selectedCardDeck[1].getIsMatched())
+            console.log(selectedCardDeck[1].getIsMatched())
           }
-          delayStartFC = frameCount;
         }
       }
     }
