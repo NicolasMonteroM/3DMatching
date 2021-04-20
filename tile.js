@@ -15,7 +15,7 @@ class Tile {
     this.id=id
   }
 
-  render(ratio) {
+  render(ratio, ratio2) {
 
     this.width = 696.22 * ratio
     this.height = 843.54 * ratio
@@ -24,7 +24,7 @@ class Tile {
     image(this.img, this.x, this.y, this.width, this.height)
 
     if (this.isSelected) {
-      image(this.selectedimg, this.x - 5, this.y - 3, this.width * 1.02, this.height * 1.02)
+      image(this.selectedimg, this.x - 5, this.y - 3, this.width * ratio2, this.height * ratio2)
     }
     if (this.isMatched) {
       image(this.matchedimg, this.x, this.y, this.width, this.height)
