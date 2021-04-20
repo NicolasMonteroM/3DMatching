@@ -1,16 +1,18 @@
 //Objeto carta que recibe una posicion x,y y una imagen de como se vera la carta arriba------------
 class Tile {
 
-  constructor(x, y, img, pair) {
+  constructor(x, y, img, pair,id) {
     this.x = x
     this.y = y
     this.width = width
     this.height = height
     this.selectedimg = selectedimg
+    this.matchedimg = matchedimg
     this.img = img
     this.isSelected = false
     this.isMatched = false
     this.pair = pair
+    this.id=id
   }
 
   render(ratio) {
@@ -41,6 +43,7 @@ class Tile {
   }
 
   setIsMatched(isMatched) {
+   // this.setIsSelected(false)
     this.isMatched = isMatched
   }
 
@@ -58,5 +61,9 @@ class Tile {
 
   getPosY() {
     return this.y
+  }
+
+  getId() {
+    return this.id;
   }
 }
