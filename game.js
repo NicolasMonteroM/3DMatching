@@ -122,7 +122,7 @@ function resizeCards(cardDeck, newWidth) {
 //en el draw siempre estamos actualizando la logica del juego por si alguna vez cambian las cosas
 function draw() {
 
-  resizeCards(cartasN1, 100)
+ // resizeCards(cartasN1, 100)
   screenFlow()
 
 }
@@ -458,15 +458,15 @@ function mouseClicked() {
 
   buttonSystem()
 
-  if (pantalla === 6) {
+  if (pantalla === 6  && contadorOn === true) {
     checkSelected(tilesN1)
   }
 
-  if (pantalla === 4) {
+  if (pantalla === 4  && contadorOn === true) {
     checkSelected(tilesN2)
   }
 
-  if (pantalla === 8) {
+  if (pantalla === 8  && contadorOn === true) {
     checkSelected(tilesN3)
   }
 }
